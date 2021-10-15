@@ -24,13 +24,13 @@ public class Main {
         try (FileInputStream fis = new FileInputStream("src/main/resources/config.properties")) {
             property.load(fis);
 
-            pricePerKgSet[0] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKg_10")));
-            pricePerKgSet[1] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKg_20")));
-            pricePerKgSet[2] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKg_default")));
+            pricePerKgSet[0] = new BigDecimal(property.getProperty("pricePerKg_10"));
+            pricePerKgSet[1] = new BigDecimal(property.getProperty("pricePerKg_20"));
+            pricePerKgSet[2] = new BigDecimal(property.getProperty("pricePerKg_default"));
 
-            pricePerKmSet[0] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKm_10")));
-            pricePerKmSet[1] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKm_20")));
-            pricePerKmSet[2] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKm_default")));
+            pricePerKmSet[0] = new BigDecimal(property.getProperty("pricePerKm_10"));
+            pricePerKmSet[1] = new BigDecimal(property.getProperty("pricePerKm_20"));
+            pricePerKmSet[2] = new BigDecimal(property.getProperty("pricePerKm_default"));
 
             Scanner scanner = new Scanner(System.in);
             do {
@@ -44,6 +44,8 @@ public class Main {
                 System.out.println("Enter 'q' for exit or 'c' to continue:");
             } while (scanner.next().equals("c"));
 
+        } catch (NumberFormatException numberFormatException) {
+            System.err.println("Not correct entered format!");
         } catch (IOException e) {
             System.err.println("ERROR: Something went wrong!");
         }
@@ -58,7 +60,7 @@ public class Main {
         return enteredValue;
     }
 
-    private static BigDecimal getValueFromArray(BigDecimal[] array, BigDecimal parameter){
+    private static BigDecimal getValueFromArray(BigDecimal[] array, BigDecimal parameter) {
         if (parameter.doubleValue() < 10)
             return array[0];
         else if (parameter.doubleValue() > 20)
