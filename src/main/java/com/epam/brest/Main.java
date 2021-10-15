@@ -2,23 +2,53 @@ package com.epam.brest;
 
 import com.epam.brest.calc.CalcImpl;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Properties;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-        BigDecimal weight, pricePerKg, length, pricePerKm;
-        try (Scanner scanner = new Scanner(System.in)) {
+        BigDecimal weight;
+        BigDecimal length;
+        BigDecimal pricePerKg;
+        BigDecimal pricePerKm;
+
+        BigDecimal[] pricePerKgSet = new BigDecimal[3];
+        BigDecimal[] pricePerKmSet = new BigDecimal[3];
+
+        Properties property = new Properties();
+
+        try (FileInputStream fis = new FileInputStream("src/main/resources/config.properties")) {
+            property.load(fis);
+
+            pricePerKgSet[0] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKg_10")));
+            pricePerKgSet[1] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKg_20")));
+            pricePerKgSet[2] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKg_default")));
+
+            pricePerKmSet[0] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKm_10")));
+            pricePerKmSet[1] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKm_20")));
+            pricePerKmSet[2] = BigDecimal.valueOf(Double.parseDouble(property.getProperty("pricePerKm_default")));
+
+            Scanner scanner = new Scanner(System.in);
             do {
                 weight = getValueFromCon(scanner, "Enter weight:");
-                pricePerKg = getValueFromCon(scanner, "Enter pricePerKg:");
                 length = getValueFromCon(scanner, "Enter length:");
-                pricePerKm = getValueFromCon(scanner, "Enter pricePerKm:");
+
+                pricePerKg = getValueFromArray(pricePerKgSet, weight);
+                pricePerKm = getValueFromArray(pricePerKmSet, length);
+
                 System.out.println("Result:" + new CalcImpl().handle(weight, pricePerKg, length, pricePerKm));
                 System.out.println("Enter 'q' for exit or 'c' to continue:");
             } while (scanner.next().equals("c"));
+
+        } catch (IOException e) {
+            System.err.println("ERROR: Something went wrong!");
         }
+
+
     }
 
     private static BigDecimal getValueFromCon(Scanner scanner, String outputMessage) {
@@ -26,5 +56,14 @@ public class Main {
         System.out.print(outputMessage);
         enteredValue = scanner.nextBigDecimal();
         return enteredValue;
+    }
+
+    private static BigDecimal getValueFromArray(BigDecimal[] array, BigDecimal parameter){
+        if (parameter.doubleValue() < 10)
+            return array[0];
+        else if (parameter.doubleValue() > 20)
+            return array[2];
+        else
+            return array[1];
     }
 }
